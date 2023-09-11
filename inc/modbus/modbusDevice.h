@@ -15,6 +15,7 @@ typedef struct modbusRegister
     uint8_t len;
     void (*write)(uint8_t*, uint8_t, uint16_t);
     uint16_t (*read)(uint8_t*, uint8_t);
+    uint8_t disableAccessCheck;
 } modbusRegister_t;
 
 struct modbusDevice

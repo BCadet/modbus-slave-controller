@@ -87,6 +87,8 @@ ModbusError registerCallback(
     else
         rw = modbusMaskRead(reg->writeMask, args->index);
     if(args->query <= MODBUS_REGQ_W_CHECK)
+    {
+        if(reg->disableAccessCheck) return MODBUS_OK; //access check is disabled, assume fully RW
         if (rw)
             modbus_log("RW");
         else
@@ -99,6 +101,7 @@ ModbusError registerCallback(
                 return MODBUS_OK;
             }
         }
+    }
     else
     {
         if(args->query == MODBUS_REGQ_W && reg->write != NULL)
