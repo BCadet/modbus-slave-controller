@@ -156,7 +156,11 @@ uint8_t modbus_run(modbusController_t *controller)
     while (device != NULL)
     {
         controller->engine.context = device;
-        ModbusErrorInfo err = modbusParseRequestRTU(&controller->engine, device->address, controller->buf, controller->idx);
+        ModbusErrorInfo err = MODBUS_GENERAL_ERROR(OTHER);
+        if(controller->parsing_mode == RTU)
+            err = modbusParseRequestRTU(&controller->engine, device->address, controller->buf, controller->idx);
+        else
+            err = modbusParseRequestTCP(&controller->engine, controller->buf, controller->idx);
         if (modbusIsOk(err))
         {
             uint16_t length = modbusSlaveGetResponseLength(&controller->engine);
@@ -164,11 +168,14 @@ uint8_t modbus_run(modbusController_t *controller)
             controller->write(controller, response, length);
             modbus_flush(controller);
         }
-        else if (modbusGetErrorCode(err) == MODBUS_ERROR_CRC) // incomplete frame abort parsing for other addresses
+        else if (modbusGetErrorCode(err) != MODBUS_ERROR_ADDRESS) // if error is other than INVALID_ADDRESS. stop parsing
         {
             break;
         }
-        device = device->next;
+        if(controller->parsing_mode == RTU)
+            device = device->next;
+        else
+            break; // only the first slave of the chain is used in tcp mode
     }
     return 0;
 }

@@ -26,6 +26,10 @@ struct modbusController
     platform_modbus_read_fptr read;
     platform_modbus_write_fptr write;
     int32_t alarm_id;
+    enum {
+        RTU = 0,
+        TCP
+    } parsing_mode;
 };
 
 uint8_t modbus_init(modbusController_t *controller);
