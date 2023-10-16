@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 
+#define MODBUS_SET_RW(mask, reg) {mask[(reg>>3)] |= (1<<(reg%8));}
+#define MODBUS_SET_RO(mask, reg) {mask[(reg>>3)] &= ~(1<<(reg%8));}
+
 typedef struct modbusDevice modbusDevice_t;
 
 typedef void (*deviceHwCallback_fptr)(modbusDevice_t *, const void *, void *);
